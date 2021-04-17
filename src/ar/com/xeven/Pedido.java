@@ -137,11 +137,11 @@ public class Pedido {
     }
 
     public int pagar(int pago) {
-        actualizarEstado(Estado.PAGO, idPedido);
+        actualizarEstado(Estado.PAGO);
         return pago-total;
     }
 
-    private static void actualizarEstado(Estado estado, int idPedido) {
+    private void actualizarEstado(Estado estado) {
         String sql = "UPDATE pedidos SET estado = ? WHERE idPedido = ?;";
         ConexionDB conexionDB = new ConexionDB(dbName, dbUser, dbPwd, sql);
         PreparedStatement pstmt = conexionDB.getPstmt();
@@ -155,7 +155,7 @@ public class Pedido {
             conexionDB.cerrar();
         }
     }
-    public static void cancelarPedido(int idPedido){
-        actualizarEstado(Estado.CANCELADO, idPedido);
+    public void cancelarPedido(){
+        actualizarEstado(Estado.CANCELADO);
     }
 }
