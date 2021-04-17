@@ -1,10 +1,12 @@
 package ar.com.xeven;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
 public class Pedido {
+    private int total;
     private int idPedido;
     private HashMap<Integer, Integer> productosPorPedido;
     private static final String dbName = "panaderia";
@@ -14,12 +16,47 @@ public class Pedido {
 
     public Pedido(HashMap<Integer, Integer> productosPorPedido) {
         this.productosPorPedido = productosPorPedido;
+        this.total = calcularTotal();
         crearPedido();
         productosPorPedido.forEach(this::crearProductosPorPedido);
     }
 
     public Pedido(int idPedido) {
-        // cargar el pedido de la base de datos
+        String sql = "SELECT * FROM pedidos WHERE idPedido = ?";
+        ConexionDB conexionDB = new ConexionDB(dbName,dbUser,dbPwd, sql);
+        PreparedStatement pstmt = conexionDB.getPstmt();
+        try{
+            pstmt.setInt(1, idPedido);
+            ResultSet rs = pstmt.executeQuery();
+            if(rs.next()){
+                this.idPedido = idPedido;
+                this.estado = Estado.values()[rs.getInt("estado")];
+                this.total = rs.getInt("total");
+                cargarProductosPorPedido();
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }finally {
+            conexionDB.cerrar();
+        }
+    }
+
+    private void cargarProductosPorPedido() {
+        productosPorPedido = new HashMap<>();
+        String sql= "SELECT idProducto, cantidad FROM productosxpedido WHERE idPedido = ?;";
+        ConexionDB conexionDB = new ConexionDB(dbName, dbUser, dbPwd, sql);
+        PreparedStatement pstmt = conexionDB.getPstmt();
+        try{
+            pstmt.setInt(1,idPedido);
+            ResultSet rs = pstmt.executeQuery();
+            if(rs!=null)
+                while(rs.next())
+                    productosPorPedido.put(
+                            rs.getInt("idProducto"),
+                            rs.getInt("cantidad"));
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     private void crearProductosPorPedido(int idProducto, int cantidad){
@@ -39,7 +76,6 @@ public class Pedido {
     }
 
     private void crearPedido(){
-        int total = calcularTotal();
         String sql = "INSERT INTO pedidos (`total`,`estado`) VALUES (?,?);";
         ConexionDB conexionDB = new ConexionDB(dbName, dbUser, dbPwd, sql);
         PreparedStatement pstmt = conexionDB.getPstmt();
@@ -48,20 +84,6 @@ public class Pedido {
             pstmt.setInt(2, Estado.CONFIRMADO.ordinal());
             this.idPedido = conexionDB.ejecutarRetornarKey();
             this.estado = Estado.CONFIRMADO;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }finally {
-            conexionDB.cerrar();
-        }
-    }
-    public static void cancelarPedido(int idPedido){
-        String sql = "UPDATE pedidos SET estado = ? WHERE idPedido = ?";
-        ConexionDB conexionDB = new ConexionDB(dbName, dbUser, dbPwd, sql);
-        PreparedStatement pstmt = conexionDB.getPstmt();
-        try {
-            pstmt.setInt(1, Estado.CANCELADO.ordinal());
-            pstmt.setInt(2,idPedido);
-            pstmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
@@ -112,5 +134,28 @@ public class Pedido {
         }
         detalles += "Total: $"+total;
         return detalles;
+    }
+
+    public int pagar(int pago) {
+        actualizarEstado(Estado.PAGO, idPedido);
+        return pago-total;
+    }
+
+    private static void actualizarEstado(Estado estado, int idPedido) {
+        String sql = "UPDATE pedidos SET estado = ? WHERE idPedido = ?;";
+        ConexionDB conexionDB = new ConexionDB(dbName, dbUser, dbPwd, sql);
+        PreparedStatement pstmt = conexionDB.getPstmt();
+        try {
+            pstmt.setInt(1, estado.ordinal());
+            pstmt.setInt(2,idPedido);
+            pstmt.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            conexionDB.cerrar();
+        }
+    }
+    public static void cancelarPedido(int idPedido){
+        actualizarEstado(Estado.CANCELADO, idPedido);
     }
 }
