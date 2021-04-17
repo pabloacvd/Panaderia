@@ -29,5 +29,8 @@ public class Panaderia {
         }while(op!=0);
         Pedido pedido = new Pedido(productosPorPedido);
 
+        System.out.println("Detalles de su pedido: ");
+        System.out.println(pedido.verDetalles());
+
     }
 }

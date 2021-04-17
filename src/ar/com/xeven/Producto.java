@@ -1,5 +1,6 @@
 package ar.com.xeven;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -49,6 +50,24 @@ public class Producto {
                 conexionDB.cerrar();
             }
         return productos;
+    }
+
+    public static int getPrecio(Integer idProducto) {
+        int precio = 0;
+        String sql = "SELECT precio FROM productos WHERE idProducto = ?";
+        ConexionDB conexionDB = new ConexionDB(dbName,dbUser,dbPwd, sql);
+        PreparedStatement pstmt = conexionDB.getPstmt();
+        try{
+            pstmt.setInt(1, idProducto);
+            ResultSet rs = pstmt.executeQuery();
+            if(rs.next())
+                precio = rs.getInt("precio");
+        }catch (SQLException e){
+            e.printStackTrace();
+        }finally {
+            conexionDB.cerrar();
+        }
+        return precio;
     }
 
     public int getIdProducto() {

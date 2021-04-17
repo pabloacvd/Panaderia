@@ -14,9 +14,7 @@ public class Pedido {
     public Pedido(HashMap<Integer, Integer> productosPorPedido) {
         this.productosPorPedido = productosPorPedido;
         crearPedido();
-        productosPorPedido.keySet().forEach(
-          k -> crearProductosPorPedido(k, 0)
-        ); // todo agregar cantidad!
+        productosPorPedido.forEach(this::crearProductosPorPedido);
     }
 
     private void crearProductosPorPedido(int idProducto, int cantidad){
@@ -51,8 +49,10 @@ public class Pedido {
     }
 
     private int calcularTotal() {
-        // TODO calcular el total
-        return 10;
+        int total = 0;
+        for(Integer idProducto : productosPorPedido.keySet())
+            total += Producto.getPrecio(idProducto) * productosPorPedido.get(idProducto);
+        return total;
     }
 
     public int getIdPedido() {
@@ -69,5 +69,19 @@ public class Pedido {
 
     public void setProductosPorPedido(HashMap<Integer, Integer> productosPorPedido) {
         this.productosPorPedido = productosPorPedido;
+    }
+
+    @Override
+    public String toString() {
+        return "Pedido{" +
+                "idPedido=" + idPedido +
+                ", productosPorPedido=" + productosPorPedido +
+                '}';
+    }
+
+    public String verDetalles() {
+        String detalles = "";
+
+        return detalles;
     }
 }
