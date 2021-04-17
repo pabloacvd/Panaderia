@@ -14,6 +14,7 @@ public class Panaderia {
         for(Producto producto:productos)
             System.out.println(producto);
 
+
         int op=0;
         System.out.println("Nueva orden. Indique 0 para salir.");
         HashMap<Integer, Integer> productosPorPedido = new HashMap<>();
@@ -27,10 +28,22 @@ public class Panaderia {
             System.out.print("¿Desea finalizar? (1=No, 0=Si) ");
             op = Integer.parseInt(sc.nextLine());
         }while(op!=0);
-        Pedido pedido = new Pedido(productosPorPedido);
+        Pedido pedido = new Pedido(productosPorPedido); //Crea el pedido en la DB
 
-        System.out.println("Detalles de su pedido: ");
+      /*
+      pagar un pedido existente:
+        Pedido pedido1 = new Pedido(25);
+        int vuelto = pedido1.pagar(40);
+       */
+
+    /*
+        pagar el pedido actual:
         System.out.println(pedido.verDetalles());
+        System.out.println("¿Está ok?");
+        if(usuarioconfirma){
+            pedido.pagar();
+        }
+    */
 
     }
 }

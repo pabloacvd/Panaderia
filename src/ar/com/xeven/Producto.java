@@ -29,6 +29,26 @@ public class Producto {
         this.precio = precio;
     }
 
+    public Producto(Integer idProducto) {
+        String sql = "SELECT * FROM productos WHERE idProducto = ?";
+        ConexionDB conexionDB = new ConexionDB(dbName,dbUser,dbPwd, sql);
+        PreparedStatement pstmt = conexionDB.getPstmt();
+        try{
+            pstmt.setInt(1, idProducto);
+            ResultSet rs = pstmt.executeQuery();
+            if(rs.next()){
+                this.idProducto = idProducto;
+                this.nombre = rs.getString("producto");
+                this.precio = rs.getInt("precio");
+                this.stock = rs.getInt("stock");
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }finally {
+            conexionDB.cerrar();
+        }
+    }
+
     public static List<Producto> getProductos(){
         List<Producto> productos = new ArrayList<>();
 
@@ -70,6 +90,24 @@ public class Producto {
         return precio;
     }
 
+    public static String getDetalles(Integer idProducto) {
+        String detalles = "";
+        String sql = "SELECT * FROM productos WHERE idProducto = ?";
+        ConexionDB conexionDB = new ConexionDB(dbName,dbUser,dbPwd, sql);
+        PreparedStatement pstmt = conexionDB.getPstmt();
+        try{
+            pstmt.setInt(1, idProducto);
+            ResultSet rs = pstmt.executeQuery();
+            if(rs.next())
+                detalles = rs.getString("producto") + " $" +rs.getInt("precio");
+        }catch (SQLException e){
+            e.printStackTrace();
+        }finally {
+            conexionDB.cerrar();
+        }
+        return detalles;
+    }
+
     public int getIdProducto() {
         return idProducto;
     }
@@ -85,7 +123,6 @@ public class Producto {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-
     public int getPrecio() {
         return precio;
     }
