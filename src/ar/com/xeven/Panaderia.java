@@ -10,7 +10,7 @@ public class Panaderia {
     public static void main(String[] args) {
         System.out.println("Welcome to the panaderia");
         // muestro lo que tengo en stock
-        List<Producto> productos = Producto.getProductos();
+        List<Producto> productos = ProductoDAO.getProductos();
         for(Producto producto:productos)
             System.out.println(producto);
 

@@ -94,7 +94,7 @@ public class Pedido {
     public int calcularTotal() {
         int total = 0;
         for(Integer idProducto : productosPorPedido.keySet())
-            total += Producto.getPrecio(idProducto) * productosPorPedido.get(idProducto);
+            total += ProductoDAO.getPrecio(idProducto) * productosPorPedido.get(idProducto);
         return total;
     }
 
@@ -126,7 +126,7 @@ public class Pedido {
         String detalles = "Pedido: "+idPedido+"\n";
         int total = 0;
         for(Integer idProducto: productosPorPedido.keySet()){
-            Producto p = new Producto(idProducto);
+            Producto p = ProductoDAO.getProducto(idProducto);
             int cantidad = productosPorPedido.get(idProducto);
             int subtotal = cantidad*p.getPrecio();
             total += subtotal;
